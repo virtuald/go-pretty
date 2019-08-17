@@ -2,4 +2,5 @@
 /demo*
 /profile/
 .coverprofile
+*.log
 *.swp
