@@ -106,7 +106,7 @@ func (p *prompt) readUserInput() (string, error) {
 func (p *prompt) pollKeyboard(buffer *buffer, chErrors chan error) {
 	defer func() {
 		if r := recover(); r != nil {
-			chErrors <- fmt.Errorf("panic: %v: %v", r, string(debug.Stack()))
+			chErrors <- fmt.Errorf("keyboard polling panic: %v: %v", r, string(debug.Stack()))
 		}
 	}()
 
@@ -129,7 +129,7 @@ func (p *prompt) pollKeyboard(buffer *buffer, chErrors chan error) {
 			}
 		}
 		if err != nil {
-			chErrors <- err
+			chErrors <- fmt.Errorf("keyboard polling failed with: %w", err)
 			return
 		}
 

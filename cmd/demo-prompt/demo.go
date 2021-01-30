@@ -13,34 +13,12 @@ import (
 )
 
 var (
-	flagDebug         = flag.Bool("debug", false, "Write debug logs to prompt.log?")
-	flagTestNoTermBox = flag.Bool("no-termbox", false, "Do not use TermBox?")
+	flagDebug       = flag.Bool("debug", false, "Write debug logs to prompt.log?")
+	flagNoTermBox   = flag.Bool("no-termbox", false, "Do not use TermBox?")
+	flagTestTermBox = flag.Bool("test-termbox", false, "Test TermBox?")
 )
 
-func testTermBoxPolling() {
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-	count := 0
-	fmt.Printf("Polling for events... (press Ctrl+D to exit)\n")
-	for {
-		event := termbox.PollEvent()
-		count++
-		fmt.Printf(">> %#v [ch: %c]\n", event, event.Ch)
-		if event.Key == termbox.KeyCtrlD {
-			break
-		}
-	}
-	termbox.Close()
-
-	fmt.Printf("Polling for events... done! [found %d events]\n", count)
-
-}
-
-func main() {
-	flag.Parse()
-
+func demoPrompt() {
 	colorFaint := text.FgHiBlack
 	colorTitle := text.Colors{text.FgHiCyan, text.Bold}
 	count := 0
@@ -63,16 +41,16 @@ func main() {
 	})
 	timeStart := time.Now()
 	title := "" +
-		colorTitle.Sprint("*****************************************************************") + "\n" +
+		colorTitle.Sprint("********************************************************************") + "\n" +
 		colorTitle.Sprint("*** SQL prompt powered by github.com/jedib0t/go-pretty/v6/prompt ***") + "\n" +
-		colorTitle.Sprint("*****************************************************************") + "\n" +
+		colorTitle.Sprint("********************************************************************") + "\n" +
 		colorFaint.Sprint("(press Ctrl+D or type '/quit' and press Enter to terminate)")
 
 	p := prompt.NewWriter()
 	if *flagDebug {
 		p.Debug()
 	}
-	if *flagTestNoTermBox {
+	if *flagNoTermBox {
 		p.DoNotUseTermbox()
 	}
 	p.SetAutoCompleter(prompt.AutoCompleteSQLKeywords())
@@ -95,5 +73,35 @@ func main() {
 			fmt.Printf("ERROR: %v\n", err)
 			os.Exit(-1)
 		}
+	}
+}
+
+func testTermBoxPolling() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	count := 0
+	fmt.Printf("Polling for events... (press Ctrl+D to exit)\n")
+	for {
+		event := termbox.PollEvent()
+		count++
+		fmt.Printf(">> %#v [ch: %c]\n", event, event.Ch)
+		if event.Key == termbox.KeyCtrlD {
+			break
+		}
+	}
+	termbox.Close()
+
+	fmt.Printf("Polling for events... done! [found %d events]\n", count)
+}
+
+func main() {
+	flag.Parse()
+
+	if *flagTestTermBox {
+		testTermBoxPolling()
+	} else {
+		demoPrompt()
 	}
 }
