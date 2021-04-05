@@ -1,6 +1,7 @@
 package progress
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -68,10 +69,41 @@ func TestTracker_IsIndeterminate(t *testing.T) {
 func TestTracker_MarkAsDone(t *testing.T) {
 	tracker := Tracker{}
 	assert.False(t, tracker.IsDone())
+	assert.Nil(t, tracker.Error())
 	assert.True(t, tracker.timeStop.IsZero())
 
 	tracker.MarkAsDone()
 	assert.True(t, tracker.IsDone())
+	assert.Nil(t, tracker.Error())
+	assert.False(t, tracker.timeStop.IsZero())
+
+	tracker.MarkAsErrorDone(fmt.Errorf("err"))
+	assert.True(t, tracker.IsDone())
+	assert.Nil(t, tracker.Error())
+	assert.False(t, tracker.timeStop.IsZero())
+}
+
+func TestTracker_MarkAsError(t *testing.T) {
+	tracker := Tracker{}
+	assert.False(t, tracker.IsDone())
+	assert.Nil(t, tracker.Error())
+	assert.True(t, tracker.timeStop.IsZero())
+
+	err := fmt.Errorf("error1")
+
+	tracker.MarkAsErrorDone(err)
+	assert.True(t, tracker.IsDone())
+	assert.Equal(t, err, tracker.Error())
+	assert.False(t, tracker.timeStop.IsZero())
+
+	tracker.MarkAsErrorDone(fmt.Errorf("error2"))
+	assert.True(t, tracker.IsDone())
+	assert.Equal(t, err, tracker.Error())
+	assert.False(t, tracker.timeStop.IsZero())
+
+	tracker.MarkAsDone()
+	assert.True(t, tracker.IsDone())
+	assert.Equal(t, err, tracker.Error())
 	assert.False(t, tracker.timeStop.IsZero())
 }
 
